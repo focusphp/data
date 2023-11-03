@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<ruleset>
+  <arg name="basepath" value="."/>
+  <arg name="extensions" value="php"/>
+  <arg name="parallel" value="80"/>
+  <arg name="cache" value=".phpcs-cache"/>
+  <arg name="colors"/>
+
+  <!-- Ignore warnings, show progress of the run and show sniff names -->
+  <arg value="nps"/>
+
+  <!-- Paths to be checked -->
+  <file>examples</file>
+  <file>src</file>
+  <file>tests</file>
+
+  <!-- Allow lots of memory -->
+  <ini name="memory_limit" value="2G"/>
+
+  <!-- Include full Doctrine Coding Standard -->
+  <rule ref="Doctrine">
+    <exclude name="Generic.Formatting.MultipleStatementAlignment"/>
+    <exclude name="Generic.NamingConventions.ConstructorName.OldStyle"/>
+    <exclude name="Squiz.Arrays.ArrayDeclaration.MultiLineNotAllowed"/>
+    <exclude name="SlevomatCodingStandard.Commenting.RequireOneLineDocComment"/>
+    <exclude name="SlevomatCodingStandard.ControlStructures.EarlyExit.EarlyExitNotUsed"/>
+    <exclude name="SlevomatCodingStandard.Files.TypeNameMatchesFileName.NoMatchBetweenTypeNameAndFileName"/>
+    <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingTraversableTypeHintSpecification"/>
+    <exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingTraversableTypeHintSpecification"/>
+    <exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingTraversableTypeHintSpecification"/>
+    <exclude name="SlevomatCodingStandard.PHP.RequireExplicitAssertion.RequiredExplicitAssertion"/>
+    <exclude name="SlevomatCodingStandard.PHP.RequireNowdoc"/>
+  </rule>
+
+  <!-- Configure return type spacing -->
+  <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHintSpacing">
+    <properties>
+      <property name="spacesCountBeforeColon" value="0"/>
+    </properties>
+  </rule>
+
+  <!-- Define unions style -->
+  <rule ref="SlevomatCodingStandard.TypeHints.UnionTypeHintFormat">
+    <properties>
+      <property name="withSpaces" value="no" />
+      <property name="shortNullable" value="no" />
+      <property name="nullPosition" value="last" />
+    </properties>
+  </rule>
+
+  <!-- Configure namespace matching -->
+  <rule ref="SlevomatCodingStandard.Files.TypeNameMatchesFileName">
+    <properties>
+      <property name="rootNamespaces" type="array">
+        <element key="src" value="Focus\Data"/>
+        <element key="tests" value="Focus\Data\Tests"/>
+      </property>
+    </properties>
+  </rule>
+</ruleset>
