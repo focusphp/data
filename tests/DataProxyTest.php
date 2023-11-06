@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Focus\Data\Tests;
 
-use Focus\Data\Data;
+use Focus\Data\Behavior\DataProxyBehavior;
 use Focus\Data\DataProxy;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(DataProxy::class)]
+#[CoversClass(DataProxyBehavior::class)]
 class DataProxyTest extends TestCase
 {
     private RecordingData $data;
@@ -18,17 +19,7 @@ class DataProxyTest extends TestCase
     protected function setUp(): void
     {
         $this->data = new RecordingData();
-        $this->proxy = new class ($this->data) extends DataProxy {
-            public function __construct(
-                private readonly Data $data,
-            ) {
-            }
-
-            protected function source(): Data
-            {
-                return $this->data;
-            }
-        };
+        $this->proxy = new ProxiesData($this->data);
     }
 
     public function testHasShouldProxy(): void
