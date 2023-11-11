@@ -63,6 +63,34 @@ It is also possible to check for the existence of a path, even when the value is
 $deactivated = $data->has(path: 'user.deactivated_at'); // true
 ```
 
+### JSON Data
+
+The `JsonData` object is a proxy with factory methods to create data instances
+from JSON strings as well as PSR-7 `RequestInterface`, `ServerRequestInterface`,
+and `ResponseInterface` objects:
+
+```php
+use Focus\Data\JsonData;
+
+/** @var Psr\Http\Message\ServerRequestInterface $request */
+$request = $app->request();
+
+$data = JsonData::fromRequest($request);
+```
+
+There are three factory methods for `JsonData`:
+
+- `fromString()` creates data from JSON strings
+- `fromRequest()` creates data from PSR-7 (server) requests
+- `fromResponse()` creates data from PSR-7 responses
+
+Be aware that `ServerRequestInterface` input will default to using `getParsedBody()`
+as the data source. To ignore the parsed body, call the factory this way:
+
+```php
+$data = JsonData::fromRequest($request, useParsedBody: false);
+```
+
 ## FAQ
 
 These are some of the most common questions about usage and design of this package.
