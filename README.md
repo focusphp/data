@@ -84,8 +84,8 @@ There are three factory methods for `JsonData`:
 - `fromRequest()` creates data from PSR-7 (server) requests
 - `fromResponse()` creates data from PSR-7 responses
 
-Be aware that `ServerRequestInterface` input will default to using `getParsedBody()`
-as the data source. To ignore the parsed body, call the factory this way:
+Be aware when calling `JsonData::fromRequest()` with a `ServerRequestInterface` object,
+the value of `getParsedBody()` will be used by default. To disable this behavior, use:
 
 ```php
 $data = JsonData::fromRequest($request, useParsedBody: false);
