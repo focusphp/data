@@ -13,7 +13,7 @@ use function json_decode;
 
 use const JSON_THROW_ON_ERROR;
 
-final class JsonData extends DataProxy
+final readonly class JsonData extends DataProxy
 {
     use DataProxyBehavior;
 
