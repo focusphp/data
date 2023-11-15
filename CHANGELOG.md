@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - All implementations of Data are now `readonly`
+- KeyedData constructor changed from `private` to `public`
 
 ## [1.2.0] 2023-11-11
 
