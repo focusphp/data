@@ -58,7 +58,7 @@ class KeyedDataTest extends TestCase
 
     public function testFromShouldCreateInstance(): void
     {
-        $data = KeyedData::from(self::$fixture);
+        $data = new KeyedData(self::$fixture);
 
         self::assertInstanceOf(
             expected: KeyedData::class,
