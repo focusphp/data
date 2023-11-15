@@ -44,7 +44,7 @@ final readonly class KeyedData implements Data
         );
     }
 
-    private function __construct(
+    public function __construct(
         private array|object $value = new stdClass(),
     ) {
     }
