@@ -7,7 +7,7 @@ namespace Focus\Data\Tests;
 use Focus\Data\Behavior\DataProxyBehavior;
 use Focus\Data\DataProxy;
 
-final class ProxiesData extends DataProxy
+final readonly class ProxiesData extends DataProxy
 {
     use DataProxyBehavior;
 }

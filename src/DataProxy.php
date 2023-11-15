@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Focus\Data;
 
-abstract class DataProxy implements Data
+abstract readonly class DataProxy implements Data
 {
     abstract protected function source(): Data;
 
