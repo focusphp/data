@@ -220,4 +220,16 @@ class KeyedDataTest extends TestCase
             message: 'search() should return the result of JMESPath query',
         );
     }
+
+    #[DataProvider(methodName: 'supportedValues')]
+    public function testSetShouldUpdateValue(KeyedData $data): void
+    {
+        $data->set(path: 'codes.01A', value: 250);
+
+        self::assertSame(
+            expected: 250,
+            actual: $data->search(path: 'codes.01A'),
+            message: 'search() should return the updated key value',
+        );
+    }
 }

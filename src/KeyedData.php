@@ -11,6 +11,7 @@ use RuntimeException;
 use stdClass;
 
 use function array_key_exists;
+use function array_pop;
 use function explode;
 use function gettype;
 use function is_array;
@@ -20,7 +21,7 @@ use function property_exists;
 use function trim;
 use function vsprintf;
 
-final readonly class KeyedData implements Data
+final class KeyedData implements Data
 {
     public static function from(array|object $value): self
     {
@@ -105,6 +106,38 @@ final readonly class KeyedData implements Data
         }
 
         return $data;
+    }
+
+    public function set(string $path, mixed $value = null): void
+    {
+        $currentValue =& $this->value;
+
+        $keyPath = $this->expand($path);
+        $endKey = array_pop($keyPath);
+
+        foreach ($keyPath as $currentKey) {
+            if ((is_array($currentValue) || $currentValue instanceof ArrayAccess) && ! isset($currentValue[$currentKey])) {
+                $currentValue[$currentKey] = [];
+            } elseif (! isset($currentValue->$currentKey)) {
+                unset($currentValue->$currentKey);
+            }
+
+            if (is_array($currentValue) || $currentValue instanceof ArrayAccess) {
+                $currentValue =& $currentValue[$currentKey];
+            }
+
+            if (is_object($currentValue)) {
+                $currentValue =& $currentValue->$currentKey;
+            }
+        }
+
+        if (is_array($currentValue) || $currentValue instanceof ArrayAccess) {
+            $currentValue[$endKey] = $value;
+        }
+
+        if (is_object($currentValue)) {
+            $currentValue->$endKey = $value;
+        }
     }
 
     public function search(string $path): mixed
