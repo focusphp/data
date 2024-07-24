@@ -6,15 +6,22 @@ namespace Focus\Data\Tests;
 
 use Focus\Data\DataProxy;
 use Focus\Data\JsonData;
-use Focus\Data\KeyedData;
+use Focus\Data\KeyedData\KeyedDataArray;
+use Focus\Data\KeyedData\KeyedDataFactory;
+use Focus\Data\KeyedData\KeyedDataObject;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+use function json_decode;
+use function json_encode;
+
 #[CoversClass(JsonData::class)]
 #[UsesClass(DataProxy::class)]
-#[UsesClass(KeyedData::class)]
+#[UsesClass(KeyedDataObject::class)]
+#[UsesClass(KeyedDataArray::class)]
+#[UsesClass(KeyedDataFactory::class)]
 class JsonDataTest extends TestCase
 {
     private Psr17Factory $httpFactory;
@@ -51,6 +58,18 @@ class JsonDataTest extends TestCase
         $request = $request->withParsedBody(data: ['test' => true]);
 
         $data = JsonData::fromRequest($request);
+
+        self::assertTrue(
+            condition: $data->get(path: 'test'),
+        );
+    }
+
+    public function testShouldCreateFromServerRequestWhenParsedBodyIsObject(): void
+    {
+        $request = $this->httpFactory->createServerRequest(method: 'GET', uri: '/');
+        $request = $request->withParsedBody(data: json_decode(json_encode(['test' => true])));
+
+        $data = JsonData::fromRequest($request, associative: false);
 
         self::assertTrue(
             condition: $data->get(path: 'test'),

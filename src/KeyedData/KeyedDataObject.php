@@ -2,54 +2,43 @@
 
 declare(strict_types=1);
 
-namespace Focus\Data;
+namespace Focus\Data\KeyedData;
 
-use ArrayAccess;
-use InvalidArgumentException;
+use Focus\Data\Data;
 use JmesPath\Env as JmesPath;
 use RuntimeException;
 use stdClass;
 
-use function array_key_exists;
 use function explode;
 use function gettype;
-use function is_array;
 use function is_object;
 use function preg_match;
 use function property_exists;
 use function trim;
 use function vsprintf;
 
-final readonly class KeyedData implements Data
+final readonly class KeyedDataObject implements Data
 {
-    public static function from(array|object $value): self
+    public static function from(object $value): self
     {
         return new self($value);
     }
 
-    public static function tryFrom(mixed $value): self
+    public static function tryFrom(mixed $value): KeyedDataObject
     {
         if ($value === null) {
             return new self();
         }
 
-        if (is_array($value) || is_object($value)) {
-            return self::from($value);
-        }
-
-        throw new InvalidArgumentException(
-            message: vsprintf(format: 'Cannot create KeyedData from %s', values: [
-                gettype($value),
-            ]),
-        );
+        return KeyedDataFactory::from($value);
     }
 
     public function __construct(
-        private array|object $value = new stdClass(),
+        private object $value = new stdClass(),
     ) {
     }
 
-    public function jsonSerialize(): array|object
+    public function jsonSerialize(): object
     {
         return $this->value;
     }
@@ -59,19 +48,7 @@ final readonly class KeyedData implements Data
         $data = $this->value;
 
         foreach ($this->expand($path) as $key) {
-            if ($data instanceof ArrayAccess) {
-                if (! $data->offsetExists($key)) {
-                    return false;
-                }
-
-                $data = $data->offsetGet($key);
-            } elseif (is_array($data)) {
-                if (! array_key_exists($key, $data)) {
-                    return false;
-                }
-
-                $data = $data[$key];
-            } elseif (is_object($data)) {
+            if (is_object($data)) {
                 if (! property_exists($data, $key)) {
                     return false;
                 }
@@ -90,9 +67,7 @@ final readonly class KeyedData implements Data
         $data = $this->value;
 
         foreach ($this->expand($path) as $key) {
-            if (is_array($data) || $data instanceof ArrayAccess) {
-                $data = $data[$key] ?? null;
-            } elseif (is_object($data)) {
+            if (is_object($data)) {
                 $data = $data->$key ?? null;
             } else {
                 throw new RuntimeException(

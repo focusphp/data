@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Focus\Data\Behavior;
 
 use Focus\Data\Data;
-use Focus\Data\KeyedData;
+use Focus\Data\KeyedData\KeyedDataObject;
 
 /**
  * Provides simple source() method for a DataProxy extension
@@ -15,7 +15,7 @@ use Focus\Data\KeyedData;
 trait DataProxyBehavior
 {
     public function __construct(
-        private readonly Data $data = new KeyedData(),
+        private readonly Data $data = new KeyedDataObject(),
     ) {
     }
 
