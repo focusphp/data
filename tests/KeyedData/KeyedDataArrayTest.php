@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Focus\Data\Tests;
+namespace Focus\Data\Tests\KeyedData;
 
 use ArrayObject;
-use Focus\Data\KeyedData;
+use Focus\Data\KeyedData\KeyedDataArray;
+use Focus\Data\KeyedData\KeyedDataFactory;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -13,12 +14,12 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 use function array_map;
-use function json_decode;
 use function json_encode;
 use function vsprintf;
 
-#[CoversClass(KeyedData::class)]
-class KeyedDataTest extends TestCase
+#[CoversClass(KeyedDataArray::class)]
+#[CoversClass(KeyedDataFactory::class)]
+class KeyedDataArrayTest extends TestCase
 {
     private static array $fixture = [
         'testing' => [
@@ -38,13 +39,12 @@ class KeyedDataTest extends TestCase
 
     public static function supportedValues(): array
     {
-        $set = array_map(KeyedData::from(...), [
+        $set = array_map(KeyedDataArray::from(...), [
             'array' => self::$fixture,
             'ArrayAccess' => new ArrayObject(self::$fixture),
-            'stdClass' => json_decode(json_encode(self::$fixture)),
         ]);
 
-        return array_map(static fn (KeyedData $x) => [$x], $set);
+        return array_map(static fn (KeyedDataArray $x) => [$x], $set);
     }
 
     public static function unsupportedValues(): array
@@ -58,35 +58,35 @@ class KeyedDataTest extends TestCase
 
     public function testFromShouldCreateInstance(): void
     {
-        $data = new KeyedData(self::$fixture);
+        $data = KeyedDataArray::from(self::$fixture);
 
         self::assertInstanceOf(
-            expected: KeyedData::class,
+            expected: KeyedDataArray::class,
             actual: $data,
         );
     }
 
     public function testTryFromShouldCreateInstance(): void
     {
-        $data = KeyedData::tryFrom(self::$fixture);
+        $data = KeyedDataArray::tryFrom(self::$fixture);
 
         self::assertInstanceOf(
-            expected: KeyedData::class,
+            expected: KeyedDataArray::class,
             actual: $data,
         );
     }
 
     public function testTryFromShouldCreateEmptyObjectForNull(): void
     {
-        $data = KeyedData::tryFrom(value: null);
+        $data = KeyedDataArray::tryFrom(value: null);
 
         self::assertInstanceOf(
-            expected: KeyedData::class,
+            expected: KeyedDataArray::class,
             actual: $data,
         );
 
         self::assertSame(
-            expected: '{}',
+            expected: '[]',
             actual: json_encode($data),
         );
     }
@@ -99,16 +99,16 @@ class KeyedDataTest extends TestCase
         );
 
         self::expectExceptionMessage(
-            message: vsprintf(format: 'Cannot create KeyedData from %s', values: [
+            message: vsprintf(format: 'Cannot create KeyedDataObject or KeyedDataArray from %s', values: [
                 $type,
             ]),
         );
 
-        KeyedData::tryFrom($value);
+        KeyedDataArray::tryFrom($value);
     }
 
     #[DataProvider(methodName: 'supportedValues')]
-    public function testJsonSerializeShouldBeUsedForEncoding(KeyedData $data): void
+    public function testJsonSerializeShouldBeUsedForEncoding(KeyedDataArray $data): void
     {
         self::assertJson(
             actual: json_encode($data),
@@ -116,7 +116,7 @@ class KeyedDataTest extends TestCase
     }
 
     #[DataProvider(methodName: 'supportedValues')]
-    public function testHasShouldDetermineKeyExistence(KeyedData $data): void
+    public function testHasShouldDetermineKeyExistence(KeyedDataArray $data): void
     {
         self::assertFalse(
             condition: $data->has(path: 'noop'),
@@ -145,7 +145,7 @@ class KeyedDataTest extends TestCase
     }
 
     #[DataProvider(methodName: 'supportedValues')]
-    public function testGetShouldReturnValueAtPath(KeyedData $data): void
+    public function testGetShouldReturnValueAtPath(KeyedDataArray $data): void
     {
         self::assertNull(
             actual: $data->get(path: 'noop'),
@@ -182,7 +182,7 @@ class KeyedDataTest extends TestCase
     }
 
     #[DataProvider(methodName: 'supportedValues')]
-    public function testGetShouldThrowRuntimeExceptionPathsThatAreNotTraversable(KeyedData $data): void
+    public function testGetShouldThrowRuntimeExceptionPathsThatAreNotTraversable(KeyedDataArray $data): void
     {
         self::expectException(
             exception: RuntimeException::class,
@@ -196,7 +196,7 @@ class KeyedDataTest extends TestCase
     }
 
     #[DataProvider(methodName: 'supportedValues')]
-    public function testSearchShouldReturnValueByDotPathOrExpression(KeyedData $data): void
+    public function testSearchShouldReturnValueByDotPathOrExpression(KeyedDataArray $data): void
     {
         self::assertNull(
             actual: $data->search(path: 'noop'),

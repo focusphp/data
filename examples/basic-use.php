@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use Focus\Data\KeyedData;
+use Focus\Data\KeyedData\KeyedDataFactory;
 
 $value = [
     'user' => [
@@ -19,7 +19,9 @@ $value = [
     ],
 ];
 
-$data = KeyedData::from($value);
+// If the value is an object, then a KeyedDataObject will be returned.
+// If the value is an array or ArrayObject, then a KeyedDataArray will be returned.
+$data = KeyedDataFactory::from($value);
 
 // get() returns values using dot paths
 $name = $data->get(path: 'user.name');

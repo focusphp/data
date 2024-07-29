@@ -17,10 +17,10 @@ composer require focus/data
 
 ## Usage
 
-The most basic usage is `KeyedData`, which wraps arrays and objects:
+The most basic usage is `KeyedDataObject`, which wraps objects and `KeyedDataArray`, which warps arrays:
 
 ```php
-use Focus\Data\KeyedData;
+use Focus\Data\KeyedData\KeyedDataFactory;
 
 $value = [
     'user' => [
@@ -35,7 +35,8 @@ $value = [
     ],
 ];
 
-$data = KeyedData::from($value);
+// Will create either KeyedDataObject or KeyedDataArray, depending on the value
+$data = KeyedDataFactory::from($value);
 ```
 
 Once you have an instance of data, you can access the values by using dot paths:
@@ -90,7 +91,9 @@ the value of `getParsedBody()` will be used by default. To disable this behavior
 ```php
 $data = JsonData::fromRequest($request, useParsedBody: false);
 ```
-
+When using `getParsedBody()` remember that most `ServerRequestInterface` objects will decode the request body 
+with `associative: true`, producing an array. If you wish to have `JsonData->value` be an object, instead of an array,
+configure your `ServerRequestInterface` to decode request bodies with `associative: false` (default for `json_decode()`)
 ## FAQ
 
 These are some of the most common questions about usage and design of this package.
