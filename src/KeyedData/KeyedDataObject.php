@@ -9,16 +9,16 @@ use JmesPath\Env as JmesPath;
 use RuntimeException;
 use stdClass;
 
-use function explode;
 use function gettype;
 use function is_object;
 use function preg_match;
 use function property_exists;
-use function trim;
 use function vsprintf;
 
 final readonly class KeyedDataObject implements Data
 {
+    use CanExpandPath;
+
     public static function from(object $value): self
     {
         return new self($value);
@@ -89,11 +89,5 @@ final readonly class KeyedDataObject implements Data
         }
 
         return JmesPath::search($path, $this->value);
-    }
-
-    private function expand(string $path): array
-    {
-        // The path SHOULD be written as keys separated by periods.
-        return explode(separator: '.', string: trim($path, characters: '.'));
     }
 }

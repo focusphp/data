@@ -10,15 +10,15 @@ use JmesPath\Env as JmesPath;
 use RuntimeException;
 
 use function array_key_exists;
-use function explode;
 use function gettype;
 use function is_array;
 use function preg_match;
-use function trim;
 use function vsprintf;
 
 final readonly class KeyedDataArray implements Data
 {
+    use CanExpandPath;
+
     public static function from(array|ArrayAccess $value): self
     {
         return new self($value);
@@ -95,11 +95,5 @@ final readonly class KeyedDataArray implements Data
         }
 
         return JmesPath::search($path, $this->value);
-    }
-
-    private function expand(string $path): array
-    {
-        // The path SHOULD be written as keys separated by periods.
-        return explode(separator: '.', string: trim($path, characters: '.'));
     }
 }
