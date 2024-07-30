@@ -2,54 +2,43 @@
 
 declare(strict_types=1);
 
-namespace Focus\Data;
+namespace Focus\Data\KeyedData;
 
 use ArrayAccess;
-use InvalidArgumentException;
+use Focus\Data\Data;
 use JmesPath\Env as JmesPath;
 use RuntimeException;
-use stdClass;
 
 use function array_key_exists;
-use function explode;
 use function gettype;
 use function is_array;
-use function is_object;
 use function preg_match;
-use function property_exists;
-use function trim;
 use function vsprintf;
 
-final readonly class KeyedData implements Data
+final readonly class KeyedDataArray implements Data
 {
-    public static function from(array|object $value): self
+    use CanExpandPath;
+
+    public static function from(array|ArrayAccess $value): self
     {
         return new self($value);
     }
 
-    public static function tryFrom(mixed $value): self
+    public static function tryFrom(mixed $value): KeyedDataArray
     {
         if ($value === null) {
             return new self();
         }
 
-        if (is_array($value) || is_object($value)) {
-            return self::from($value);
-        }
-
-        throw new InvalidArgumentException(
-            message: vsprintf(format: 'Cannot create KeyedData from %s', values: [
-                gettype($value),
-            ]),
-        );
+        return KeyedDataFactory::from($value);
     }
 
     public function __construct(
-        private array|object $value = new stdClass(),
+        private array|ArrayAccess $value = [],
     ) {
     }
 
-    public function jsonSerialize(): array|object
+    public function jsonSerialize(): array|ArrayAccess
     {
         return $this->value;
     }
@@ -71,12 +60,6 @@ final readonly class KeyedData implements Data
                 }
 
                 $data = $data[$key];
-            } elseif (is_object($data)) {
-                if (! property_exists($data, $key)) {
-                    return false;
-                }
-
-                $data = $data->$key;
             } else {
                 return false;
             }
@@ -92,8 +75,6 @@ final readonly class KeyedData implements Data
         foreach ($this->expand($path) as $key) {
             if (is_array($data) || $data instanceof ArrayAccess) {
                 $data = $data[$key] ?? null;
-            } elseif (is_object($data)) {
-                $data = $data->$key ?? null;
             } else {
                 throw new RuntimeException(
                     message: vsprintf(format: 'Cannot follow path %s into type %s', values: [
@@ -114,11 +95,5 @@ final readonly class KeyedData implements Data
         }
 
         return JmesPath::search($path, $this->value);
-    }
-
-    private function expand(string $path): array
-    {
-        // The path SHOULD be written as keys separated by periods.
-        return explode(separator: '.', string: trim($path, characters: '.'));
     }
 }

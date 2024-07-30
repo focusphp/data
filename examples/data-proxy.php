@@ -7,10 +7,10 @@ require __DIR__ . '/../vendor/autoload.php';
 use Focus\Data\Behavior\DataProxyBehavior;
 use Focus\Data\Data;
 use Focus\Data\DataProxy;
-use Focus\Data\KeyedData;
+use Focus\Data\KeyedData\KeyedDataFactory;
 
 // phpcs:disable
-final class MyData extends DataProxy
+final readonly class MyData extends DataProxy
 {
     use DataProxyBehavior;
 
@@ -46,7 +46,7 @@ $value = [
 
 // While this looks like normal OOP abstraction, the key difference here is that
 // the underlying Data object can be any implementation.
-$data = new MyData(KeyedData::from($value));
+$data = new MyData(KeyedDataFactory::from($value));
 
 assert(assertion: $data instanceof Data);
 

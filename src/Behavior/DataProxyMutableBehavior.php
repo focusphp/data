@@ -8,14 +8,14 @@ use Focus\Data\Data;
 use Focus\Data\KeyedData\KeyedDataObject;
 
 /**
- * Provides simple source() method for a DataProxy extension
+ * Provides simple source() method for a DataProxyMutable extension
  *
- * @see \Focus\Data\DataProxy
+ * @see \Focus\Data\DataProxyMutable
  */
-trait DataProxyBehavior
+trait DataProxyMutableBehavior
 {
     public function __construct(
-        private readonly Data $data = new KeyedDataObject(),
+        private Data $data = new KeyedDataObject(),
     ) {
     }
 
