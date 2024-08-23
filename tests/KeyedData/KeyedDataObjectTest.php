@@ -11,6 +11,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use stdClass;
 
 use function array_map;
 use function json_decode;
@@ -39,8 +40,23 @@ class KeyedDataObjectTest extends TestCase
 
     public static function supportedValues(): array
     {
+        $dataObject = json_decode(json_encode(self::$fixture));
+
+        $relationshipWorkspace = new stdClass();
+        $relationshipWorkspace->type = 'workspace';
+        $relationshipWorkspace->id = 1;
+
+        $relationshipClient = new stdClass();
+        $relationshipClient->type = 'client';
+        $relationshipClient->id = 2;
+
+        $dataObject->testing->relationships = [
+            $relationshipWorkspace,
+            $relationshipClient,
+        ];
+
         $set = array_map(KeyedDataObject::from(...), [
-            'stdClass' => json_decode(json_encode(self::$fixture)),
+            'stdClass' => $dataObject,
         ]);
 
         return array_map(static fn (KeyedDataObject $x) => [$x], $set);
@@ -211,6 +227,30 @@ class KeyedDataObjectTest extends TestCase
             expected: 3,
             actual: $data->search(path: 'max(testing.list)'),
             message: 'search() should return the result of JMESPath query',
+        );
+    }
+
+    #[DataProvider(methodName: 'supportedValues')]
+    public function testSearchShouldReturnValueIfContainsIndexedArray(KeyedDataObject $data): void
+    {
+        self::assertSame(
+            expected: 'workspace',
+            actual: $data->search(path: 'testing.relationships.0.type'),
+            message: 'search() should return the value of a key whose path contains an indexed array',
+        );
+    }
+
+    #[DataProvider(methodName: 'supportedValues')]
+    public function testHasShouldDetermineHasKeyIndexedArray(KeyedDataObject $data): void
+    {
+        self::assertTrue(
+            condition: $data->has(path: 'testing.relationships.0.id'),
+            message: 'has() should return true for nested paths that contain indexed arrays',
+        );
+
+        self::assertFalse(
+            condition: $data->has(path: 'testing.relationships.6'),
+            message: 'get() should return the boolean of a path',
         );
     }
 }
