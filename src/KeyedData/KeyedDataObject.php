@@ -10,7 +10,6 @@ use RuntimeException;
 use stdClass;
 
 use function array_key_exists;
-use function explode;
 use function gettype;
 use function is_array;
 use function is_numeric;
