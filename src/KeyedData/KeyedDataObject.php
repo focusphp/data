@@ -9,7 +9,10 @@ use JmesPath\Env as JmesPath;
 use RuntimeException;
 use stdClass;
 
+use function array_key_exists;
 use function gettype;
+use function is_array;
+use function is_numeric;
 use function is_object;
 use function preg_match;
 use function property_exists;
@@ -54,6 +57,12 @@ final readonly class KeyedDataObject implements Data
                 }
 
                 $data = $data->$key;
+            } elseif (is_array($data) && is_numeric($key)) {
+                if (! array_key_exists($key, $data)) {
+                    return false;
+                }
+
+                $data = $data[$key];
             } else {
                 return false;
             }
@@ -69,6 +78,8 @@ final readonly class KeyedDataObject implements Data
         foreach ($this->expand($path) as $key) {
             if (is_object($data)) {
                 $data = $data->$key ?? null;
+            } elseif (is_array($data) && is_numeric($key)) {
+                $data = $data[(int) $key] ?? null;
             } else {
                 throw new RuntimeException(
                     message: vsprintf(format: 'Cannot follow path %s into type %s', values: [
